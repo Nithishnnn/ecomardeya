@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -8,6 +8,7 @@ import { ShoppingBag, Zap, Check } from 'lucide-react';
 import { Product } from '@/lib/types';
 import { formatCurrency, calculateDiscountPercentage } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
+import { getProductImageUrl, DEFAULT_PRODUCT_IMAGE } from '@/lib/services';
 
 interface ProductCardProps {
   product: Product;
@@ -20,9 +21,12 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const discountPercent = calculateDiscountPercentage(product.price, product.discount_price);
   const isOutOfStock = product.status === 'out_of_stock' || product.stock_quantity <= 0;
-  const primaryImage =
-    product.images?.[0]?.image_url ||
-    'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80';
+  const initialImage = getProductImageUrl(product.images?.[0]?.image_url);
+  const [cardImage, setCardImage] = useState(initialImage);
+
+  useEffect(() => {
+    setCardImage(getProductImageUrl(product.images?.[0]?.image_url));
+  }, [product.images]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -46,11 +50,16 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Product Image & Badges */}
       <Link href={`/product/${product.slug}`} className="relative aspect-square w-full bg-slate-50 overflow-hidden block">
         <Image
-          src={primaryImage}
+          src={cardImage}
           alt={product.name}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+          onError={() => {
+            if (cardImage !== DEFAULT_PRODUCT_IMAGE) {
+              setCardImage(DEFAULT_PRODUCT_IMAGE);
+            }
+          }}
         />
 
         {/* Discount Badge */}

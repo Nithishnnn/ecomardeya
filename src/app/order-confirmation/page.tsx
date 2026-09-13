@@ -161,6 +161,30 @@ function OrderConfirmationContent() {
           </div>
         </div>
 
+        {/* Financial Summary */}
+        <div className="pt-4 border-t border-slate-100 space-y-1.5 text-xs">
+          <div className="flex justify-between text-slate-600">
+            <span>Subtotal</span>
+            <span className="font-semibold text-slate-900">{formatCurrency(order.subtotal)}</span>
+          </div>
+          {order.checkout_charge !== undefined && order.checkout_charge > 0 && (
+            <div className="flex justify-between text-slate-600">
+              <span>Checkout Charge (3.5%)</span>
+              <span className="font-semibold text-slate-900">{formatCurrency(order.checkout_charge)}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-slate-600">
+            <span>Delivery Charge</span>
+            <span className="font-semibold text-slate-900">
+              {order.delivery_charge === 0 ? 'FREE' : formatCurrency(order.delivery_charge)}
+            </span>
+          </div>
+          <div className="pt-1.5 border-t border-slate-200 flex justify-between text-sm font-black text-slate-900">
+            <span>Total Paid</span>
+            <span className="text-indigo-600">{formatCurrency(order.total_amount)}</span>
+          </div>
+        </div>
+
         {/* Delivery Address */}
         <div className="pt-4 border-t border-slate-100">
           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">

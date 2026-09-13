@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatCurrency } from '@/lib/utils';
+import { getProductImageUrl, DEFAULT_PRODUCT_IMAGE } from '@/lib/services';
 
 export default function CartPage() {
   const {
@@ -94,9 +95,7 @@ export default function CartPage() {
 
           <div className="bg-white rounded-3xl border border-slate-200 divide-y divide-slate-100 overflow-hidden shadow-xs">
             {items.map(({ product, quantity }) => {
-              const primaryImage =
-                product.images?.[0]?.image_url ||
-                'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=80';
+              const primaryImage = getProductImageUrl(product.images?.[0]?.image_url);
               const unitPrice = product.discount_price ?? product.price;
 
               return (
@@ -111,6 +110,12 @@ export default function CartPage() {
                       alt={product.name}
                       fill
                       className="object-cover"
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        if (target && target.src !== DEFAULT_PRODUCT_IMAGE) {
+                          target.src = DEFAULT_PRODUCT_IMAGE;
+                        }
+                      }}
                     />
                   </Link>
 

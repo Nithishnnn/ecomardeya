@@ -27,3 +27,15 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* Hide Next.js Development Tools Indicator & Overlay */
+nextjs-portal,
+[data-nextjs-dev-tools],
+[data-nextjs-toast],
+[data-nextjs-indicator] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+

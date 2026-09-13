@@ -15,7 +15,7 @@ import {
   Percent,
 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { getProductById, getCategories, updateProduct } from '@/lib/services';
+import { getProductById, getCategories, updateProduct, getProductImageUrl, DEFAULT_PRODUCT_IMAGE } from '@/lib/services';
 import { Category, Product } from '@/lib/types';
 import { calculateDiscountPercentage } from '@/lib/utils';
 
@@ -60,12 +60,12 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
           setDescription(prod.description || '');
           setPrice(prod.price);
           setDiscountPrice(prod.discount_price ?? '');
-          setCategoryId(prod.category_id || (cats[0]?.id ?? ''));
+          setCategoryId(prod.category_id || '');
           setStockQuantity(prod.stock_quantity);
           setSku(prod.sku || '');
           setStatus(prod.status);
           if (prod.images?.[0]?.image_url) {
-            setImagePreview(prod.images[0].image_url);
+            setImagePreview(getProductImageUrl(prod.images[0].image_url));
           }
         }
       } finally {
@@ -289,6 +289,11 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
                     alt={name}
                     fill
                     className="object-cover"
+                    onError={() => {
+                      if (imagePreview !== DEFAULT_PRODUCT_IMAGE) {
+                        setImagePreview(DEFAULT_PRODUCT_IMAGE);
+                      }
+                    }}
                   />
                 </div>
 

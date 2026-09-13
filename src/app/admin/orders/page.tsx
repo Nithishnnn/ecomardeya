@@ -338,6 +338,14 @@ export default function AdminOrdersPage() {
                   {formatCurrency(selectedOrder.subtotal)}
                 </span>
               </div>
+              {selectedOrder.checkout_charge !== undefined && selectedOrder.checkout_charge > 0 && (
+                <div className="flex justify-between text-slate-600">
+                  <span>Checkout Charge (3.5%)</span>
+                  <span className="font-semibold text-slate-900">
+                    {formatCurrency(selectedOrder.checkout_charge)}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between text-slate-600">
                 <span>Delivery Charge</span>
                 <span className="font-semibold text-slate-900">

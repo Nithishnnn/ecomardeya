@@ -15,9 +15,32 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { getProducts, getCategories, deleteProduct } from '@/lib/services';
+import { getProducts, getCategories, deleteProduct, getProductImageUrl, DEFAULT_PRODUCT_IMAGE } from '@/lib/services';
 import { Product, Category } from '@/lib/types';
 import { formatCurrency, formatDate } from '@/lib/utils';
+
+function ProductThumbnail({ src, alt }: { src: string; alt: string }) {
+  const [currentSrc, setCurrentSrc] = useState(src);
+
+  useEffect(() => {
+    setCurrentSrc(src);
+  }, [src]);
+
+  return (
+    <Image
+      src={currentSrc}
+      alt={alt}
+      fill
+      sizes="48px"
+      className="object-cover"
+      onError={() => {
+        if (currentSrc !== DEFAULT_PRODUCT_IMAGE) {
+          setCurrentSrc(DEFAULT_PRODUCT_IMAGE);
+        }
+      }}
+    />
+  );
+}
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -241,9 +264,7 @@ export default function AdminProductsPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-700 font-medium">
                   {paginatedProducts.map((p) => {
-                    const primaryImage =
-                      p.images?.[0]?.image_url ||
-                      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=150&q=80';
+                    const primaryImage = getProductImageUrl(p.images?.[0]?.image_url);
 
                     return (
                       <tr key={p.id} className="hover:bg-slate-50/60 transition-colors">
@@ -251,11 +272,9 @@ export default function AdminProductsPage() {
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-3">
                             <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
-                              <Image
+                              <ProductThumbnail
                                 src={primaryImage}
                                 alt={p.name}
-                                fill
-                                className="object-cover"
                               />
                             </div>
                             <div className="min-w-0 max-w-xs">

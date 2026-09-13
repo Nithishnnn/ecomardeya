@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatCurrency } from '@/lib/utils';
+import { getProductImageUrl, DEFAULT_PRODUCT_IMAGE } from '@/lib/services';
 
 export default function CartDrawer() {
   const {
@@ -85,7 +86,7 @@ export default function CartDrawer() {
               </div>
             ) : (
               items.map(({ product, quantity }) => {
-                const primaryImage = product.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=80';
+                const primaryImage = getProductImageUrl(product.images?.[0]?.image_url);
                 const unitPrice = product.discount_price ?? product.price;
 
                 return (
@@ -96,6 +97,12 @@ export default function CartDrawer() {
                         alt={product.name}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform"
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          if (target && target.src !== DEFAULT_PRODUCT_IMAGE) {
+                            target.src = DEFAULT_PRODUCT_IMAGE;
+                          }
+                        }}
                       />
                     </div>
 

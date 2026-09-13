@@ -11,6 +11,7 @@ interface CartContextType {
   clearCart: () => void;
   totalItems: number;
   subtotal: number;
+  checkoutCharge: number;
   deliveryCharge: number;
   total: number;
   isCartOpen: boolean;
@@ -122,10 +123,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return sum + unitPrice * item.quantity;
   }, 0);
 
-  // Delivery charge rule: Free delivery for orders above ₹999, else ₹50 (or ₹0 if empty)
-  const deliveryCharge = items.length === 0 ? 0 : subtotal >= 999 ? 0 : 50;
+  // Integer paise calculations to ensure exact currency precision
+  const subtotalPaise = Math.round(subtotal * 100);
+  const checkoutChargePaise = items.length === 0 ? 0 : Math.round(subtotalPaise * 0.035);
+  const checkoutCharge = checkoutChargePaise / 100;
 
-  const total = subtotal + deliveryCharge;
+  // Delivery charge rule: Free delivery for orders above ₹999, else ₹50 (or ₹0 if empty)
+  const deliveryChargePaise = items.length === 0 ? 0 : subtotal >= 999 ? 0 : 5000;
+  const deliveryCharge = deliveryChargePaise / 100;
+
+  const total = items.length === 0 ? 0 : (subtotalPaise + deliveryChargePaise + checkoutChargePaise) / 100;
 
   return (
     <CartContext.Provider
@@ -137,6 +144,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         clearCart,
         totalItems,
         subtotal,
+        checkoutCharge,
         deliveryCharge,
         total,
         isCartOpen,

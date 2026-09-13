@@ -270,6 +270,30 @@ function MyOrdersContent() {
               </div>
             </div>
 
+            {/* Financial summary breakdown */}
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-1 text-xs">
+              <div className="flex justify-between text-slate-600">
+                <span>Subtotal</span>
+                <span className="font-semibold text-slate-900">{formatCurrency(selectedOrder.subtotal)}</span>
+              </div>
+              {selectedOrder.checkout_charge !== undefined && selectedOrder.checkout_charge > 0 && (
+                <div className="flex justify-between text-slate-600">
+                  <span>Checkout Charge (3.5%)</span>
+                  <span className="font-semibold text-slate-900">{formatCurrency(selectedOrder.checkout_charge)}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-slate-600">
+                <span>Delivery</span>
+                <span className="font-semibold text-slate-900">
+                  {selectedOrder.delivery_charge === 0 ? 'FREE' : formatCurrency(selectedOrder.delivery_charge)}
+                </span>
+              </div>
+              <div className="pt-1 border-t border-slate-200 flex justify-between font-bold text-slate-900">
+                <span>Total Paid</span>
+                <span className="text-indigo-600">{formatCurrency(selectedOrder.total_amount)}</span>
+              </div>
+            </div>
+
             {/* Delivery address */}
             <div>
               <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">

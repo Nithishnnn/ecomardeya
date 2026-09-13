@@ -79,6 +79,7 @@ export interface Order {
   pincode: string;
   landmark: string | null;
   subtotal: number;
+  checkout_charge?: number;
   delivery_charge: number;
   total_amount: number;
   payment_status: PaymentStatus;

@@ -46,7 +46,6 @@ export default function AddProductPage() {
   useEffect(() => {
     getCategories().then((cats) => {
       setCategories(cats);
-      if (cats.length > 0) setCategoryId(cats[0].id);
     });
   }, []);
 

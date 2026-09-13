@@ -23,11 +23,13 @@ import {
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { formatCurrency } from '@/lib/utils';
+import { getProductImageUrl, DEFAULT_PRODUCT_IMAGE } from '@/lib/services';
 import { CustomerCheckoutForm } from '@/lib/types';
+import { supabase } from '@/lib/supabase/client';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, subtotal, deliveryCharge, total, clearCart } = useCart();
+  const { items, subtotal, checkoutCharge, deliveryCharge, total, clearCart } = useCart();
   const { user } = useAuth();
 
   const [formData, setFormData] = useState<CustomerCheckoutForm>({
@@ -120,10 +122,17 @@ export default function CheckoutPage() {
     setErrorMessage('');
 
     try {
-      // 1. Create Pending Order on Server (validating prices in Supabase)
+      // 1. Attach authorization session token if authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
+      // Create Pending Order on Server (validating prices in Supabase)
       const res = await fetch('/api/payment/create-order', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           items: items.map((i) => ({ productId: i.product.id, quantity: i.quantity })),
           customer: formData,
@@ -506,9 +515,7 @@ export default function CheckoutPage() {
           {/* Items breakdown list */}
           <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto pr-1">
             {items.map(({ product, quantity }) => {
-              const primaryImage =
-                product.images?.[0]?.image_url ||
-                'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=200&q=80';
+              const primaryImage = getProductImageUrl(product.images?.[0]?.image_url);
               const unitPrice = product.discount_price ?? product.price;
 
               return (
@@ -520,6 +527,12 @@ export default function CheckoutPage() {
                         alt={product.name}
                         fill
                         className="object-cover"
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          if (target && target.src !== DEFAULT_PRODUCT_IMAGE) {
+                            target.src = DEFAULT_PRODUCT_IMAGE;
+                          }
+                        }}
                       />
                     </div>
                     <div className="min-w-0">
@@ -544,6 +557,10 @@ export default function CheckoutPage() {
             <div className="flex justify-between text-slate-600">
               <span>Subtotal</span>
               <span className="font-semibold text-slate-900">{formatCurrency(subtotal)}</span>
+            </div>
+            <div className="flex justify-between text-slate-600">
+              <span>Checkout Charge (3.5%)</span>
+              <span className="font-semibold text-slate-900">{formatCurrency(checkoutCharge)}</span>
             </div>
             <div className="flex justify-between text-slate-600">
               <span>Delivery Charge</span>
